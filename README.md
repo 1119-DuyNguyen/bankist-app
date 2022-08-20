@@ -8,5 +8,5 @@
 ![Bankist-flowchart](https://user-images.githubusercontent.com/62139508/185736518-baa37cac-ed07-43b1-bb60-a68d2004bb58.png)
 
 
-<p> Deploy in  </p><a href="https://1911-odl.github.io/bankist-app/"></a>
+<p> Deploy in https://1911-odl.github.io/bankist-app/ </p> 
 
