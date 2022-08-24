@@ -21,8 +21,8 @@ const account1 = {
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
   interestRate: 1.2, // %
   pin: 1911,
-  currency: 'VND',
-  locale: 'vi-VN', // de-DE
+  currency: 'USD',
+  locale: 'en-US', // de-DE
 };
 
 const account2 = {
@@ -140,12 +140,6 @@ const displayMovements = function (acc, sort = false) {
   const movs = sort
     ? acc.movements.slice().sort((a, b) => a - b)
     : acc.movements;
-  const options = {
-    style: 'currency',
-    unit: 'celsius',
-    currency: 'EUR',
-    // useGrouping: false, // khoảng trống giữa các kí tự in ra
-  };
 
   movs.forEach(function (movement, i) {
     const type = movement > 0 ? 'deposit' : 'withdrawal';
@@ -205,8 +199,37 @@ const createUserNames = function (accs) {
   });
 };
 
+const startLogOutTimer = function () {
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+
+    // In each call, print the remaining time to UI
+    labelTimer.textContent = `${min}:${sec}`;
+
+    // When 0 seconds, stop timer and log out user
+    if (time === 0) {
+      clearInterval(timer);
+      btnLogout.click();
+    }
+
+    // Decrease 1s
+    time--;
+  };
+
+  // Set time (s)
+  let time = 302;
+
+  // Call the timer every second
+  tick();
+  const timer = setInterval(tick, 1000);
+
+  return timer;
+};
 createUserNames(accounts);
-let currentAccount;
+
+//event handles;
+let currentAccount, timer;
 
 const updateUI = function (acc) {
   //display movements
@@ -215,6 +238,9 @@ const updateUI = function (acc) {
   calcDisplayBalance(acc);
   //display summary
   calcSummaryBank(acc);
+  // // Timer
+  if (timer) clearInterval(timer);
+  timer = startLogOutTimer();
 };
 //event handle
 btnLogin.addEventListener('click', function (e) {
@@ -266,6 +292,7 @@ const logOutAccount = function () {
   inputLoginUsername.style.display = 'block';
   inputLoginPin.style.display = 'block';
   containerApp.style.opacity = 0;
+  if (timer) clearInterval(timer);
 };
 btnLogout.addEventListener('click', function (e) {
   e.preventDefault();
@@ -306,8 +333,9 @@ btnLoan.addEventListener('click', function (e) {
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
     //add movements
     currentAccount.movements.push(amount);
+
     //add loan date
-    currentAccount.movements.push(new Date().toISOString());
+    currentAccount.movementsDates.push(new Date().toISOString());
     //updateUI
     updateUI(currentAccount);
   } else {
