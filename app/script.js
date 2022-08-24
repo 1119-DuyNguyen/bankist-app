@@ -4,86 +4,13 @@
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // BANKIST APP
-
-// Data
-const account1 = {
-  owner: 'Nguyen Thanh Duy',
-  movementsDates: [
-    '2019-11-01T13:15:33.035Z',
-    '2019-11-30T09:48:16.867Z',
-    '2019-12-25T06:04:23.907Z',
-    '2020-01-25T14:18:46.235Z',
-    '2020-02-05T16:33:06.386Z',
-    '2020-04-10T14:43:26.374Z',
-    '2020-06-25T18:49:59.371Z',
-    '2020-07-26T12:01:20.894Z',
-  ],
-  movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
-  interestRate: 1.2, // %
-  pin: 1911,
-  currency: 'USD',
-  locale: 'en-US', // de-DE
-};
-
-const account2 = {
-  owner: 'dev',
-  movementsDates: [
-    '2019-11-01T13:15:33.035Z',
-    '2019-11-30T09:48:16.867Z',
-    '2019-12-25T06:04:23.907Z',
-    '2020-01-25T14:18:46.235Z',
-    '2020-02-05T16:33:06.386Z',
-    '2020-04-10T14:43:26.374Z',
-    '2020-06-25T18:49:59.371Z',
-    '2020-07-26T12:01:20.894Z',
-  ],
-  movements: [5000, 3400, -150, -790, 6210, -1000, 8500, -30],
-  interestRate: 1.5,
-  pin: 2222,
-  currency: 'USD',
-  locale: 'en-US', // de-DE
-};
-
-const account3 = {
-  owner: 'Jonas',
-  movementsDates: [
-    '2019-11-01T13:15:33.035Z',
-    '2019-11-30T09:48:16.867Z',
-    '2019-12-25T06:04:23.907Z',
-    '2020-01-25T14:18:46.235Z',
-    '2020-02-05T16:33:06.386Z',
-    '2020-04-10T14:43:26.374Z',
-    '2020-06-25T18:49:59.371Z',
-    '2020-07-26T12:01:20.894Z',
-  ],
-  movements: [200, -200, 340, -300, -20, 50, 400, -460],
-  interestRate: 0.7,
-  pin: 3333,
-  currency: 'EUR',
-  locale: 'pt-PT', // de-DE
-};
-
-const account4 = {
-  owner: 'Jonas Schmedtmann Jessica Davis Steven Thomas Williams Sarah Smith',
-  movementsDates: [
-    '2019-11-01T13:15:33.035Z',
-    '2019-11-30T09:48:16.867Z',
-    '2019-12-25T06:04:23.907Z',
-    '2020-01-25T14:18:46.235Z',
-    '2020-02-05T16:33:06.386Z',
-    '2020-04-10T14:43:26.374Z',
-    '2020-06-25T18:49:59.371Z',
-    '2020-07-26T12:01:20.894Z',
-  ],
-  movements: [430, 1000, 700, 50, 90],
-  interestRate: 1,
-  pin: 4444,
-  currency: 'EUR',
-  locale: 'pt-PT', // de-DE
-};
-
-const accounts = [account1, account2, account3, account4];
-
+import {
+  formatCur,
+  formatMovementDate,
+  optionsDay,
+  clearInputField,
+} from './formatInternational.js';
+import { accounts } from './data.js';
 // Elements
 const labelWelcome = document.querySelector('.welcome');
 labelWelcome.onclick;
@@ -111,29 +38,7 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
-const formatMovementDate = function (date, locale) {
-  const calcDaysPassed = (date1, date2) =>
-    Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
 
-  const daysPassed = calcDaysPassed(new Date(), date);
-  // console.log(daysPassed);
-
-  if (daysPassed === 0) return 'Today';
-  if (daysPassed === 1) return 'Yesterday';
-  if (daysPassed <= 7) return `${daysPassed} days ago`;
-
-  // const day = `${date.getDate()}`.padStart(2, 0);
-  // const month = `${date.getMonth() + 1}`.padStart(2, 0);
-  // const year = date.getFullYear();
-  // return `${day}/${month}/${year}`;
-  return new Intl.DateTimeFormat(locale).format(date);
-};
-const formatCur = function (value, locale, currency) {
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: currency,
-  }).format(value);
-};
 const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
   //copy movements nếu sort
@@ -218,7 +123,7 @@ const startLogOutTimer = function () {
   };
 
   // Set time (s)
-  let time = 302;
+  let time = 300;
 
   // Call the timer every second
   tick();
@@ -255,19 +160,10 @@ btnLogin.addEventListener('click', function (e) {
     containerApp.style.opacity = 100;
     //Create current Date & timer
     const now = new Date();
-    const options = {
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      day: 'numeric',
-      month: 'numeric',
-      year: 'numeric',
-      weekday: 'long',
-    };
     //const locale = navigator.language;
     labelDate.textContent = new Intl.DateTimeFormat(
       currentAccount.locale,
-      options
+      optionsDay
     ).format(now);
     //updateUI
     updateUI(currentAccount);
@@ -281,9 +177,7 @@ btnLogin.addEventListener('click', function (e) {
     alert('Wrong username or pin');
   }
   //clear Input field
-  inputLoginPin.value = inputLoginUsername.value = '';
-  inputLoginPin.blur();
-  inputLoginUsername.blur();
+  clearInputField(inputLoginPin, inputLoginUsername);
 });
 const logOutAccount = function () {
   labelWelcome.innerHTML = `Log in to get started`;
@@ -324,7 +218,7 @@ btnTransfer.addEventListener('click', function (e) {
   } else {
     alert('Wrong tranfer or not enough amount ');
   }
-  inputTransferAmount.value = inputTransferTo.value = '';
+  clearInputField(inputTransferTo, inputTransferAmount);
 });
 
 btnLoan.addEventListener('click', function (e) {
@@ -341,7 +235,7 @@ btnLoan.addEventListener('click', function (e) {
   } else {
     alert(`Amount must be less than 10 minus max movement`);
   }
-  inputLoanAmount.value = '';
+  clearInputField(inputLoanAmount);
 });
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
@@ -359,7 +253,7 @@ btnClose.addEventListener('click', function (e) {
 
     // console.log(accounts);
   }
-  inputCloseUsername.value = inputClosePin.value = '';
+  clearInputField(inputClosePin, inputCloseUsername);
 });
 let isSort = false;
 btnSort.addEventListener('click', function (e) {
